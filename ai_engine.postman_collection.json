@@ -1,0 +1,341 @@
+{
+  "info": {
+    "_postman_id": "0e935e51-c9d8-43b0-a91f-2c81c2d8850d",
+    "name": "ai_engine",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57232425",
+    "_collection_link": "https://go.postman.co/collection/57232425-0e935e51-c9d8-43b0-a91f-2c81c2d8850d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/papers/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "papers",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PostPapers",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"title\": \"Graph Neural Network Based Framework for Blockchain Wallet Risk Prediction\",\r\n    \"authors\": \"Ravi Sankar Manem\",\r\n    \"abstractText\": \"A framework for predicting blockchain wallet risk using graph neural networks.\",\r\n    \"sourceUrl\": null,\r\n    \"fileName\": \"blockchain-wallet-risk.pdf\",\r\n    \"filePath\": \"data/sample-papers/blockchain-wallet-risk.pdf\",\r\n    \"sourceType\": \"LOCAL\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/papers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "papers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "PostexternalPaper",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"title\": \"Graph Neural Networks for Blockchain Analysis\",\r\n    \"authors\": \"Research Author\",\r\n    \"abstractText\": \"Research on graph neural networks applied to blockchain analysis.\",\r\n    \"sourceUrl\": \"https://arxiv.org/\",\r\n    \"fileName\": null,\r\n    \"filePath\": null,\r\n    \"sourceType\": \"EXTERNAL\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/papers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "papers"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/papers/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "papers",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Exception",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/papers/999",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "papers",
+            "999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "fileUpload",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": [
+                "/C:/Users/Ravi/Downloads/CT20265019887_Application_Form.pdf"
+              ]
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/papers/upload",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "papers",
+            "upload"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ai_engine_health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://underuse-makeover-reminder.ngrok-free.dev/health",
+          "protocol": "https",
+          "host": [
+            "underuse-makeover-reminder",
+            "ngrok-free",
+            "dev"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ai-engine_get",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://underuse-makeover-reminder.ngrok-free.dev/",
+          "protocol": "https",
+          "host": [
+            "underuse-makeover-reminder",
+            "ngrok-free",
+            "dev"
+          ],
+          "path": [
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Post_ai-eingine_retrieval",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"What is this document about?\",\r\n  \"topK\": 5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://underuse-makeover-reminder.ngrok-free.dev/retrieve",
+          "protocol": "https",
+          "host": [
+            "underuse-makeover-reminder",
+            "ngrok-free",
+            "dev"
+          ],
+          "path": [
+            "retrieve"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Discover_researches",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": null,\r\n  \"num_queries\": 3,\r\n  \"results_per_query\": 5,\r\n  \"candidate_k\": 20,\r\n  \"top_k\": 10,\r\n  \"explain_top\": 3\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://underuse-makeover-reminder.ngrok-free.dev/discover",
+          "protocol": "https",
+          "host": [
+            "underuse-makeover-reminder",
+            "ngrok-free",
+            "dev"
+          ],
+          "path": [
+            "discover"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieval_backend",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"What is the main contribution of this paper?\",\r\n  \"topK\": 5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/retrieval",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "retrieval"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Discovery",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"paperId\": 1,\r\n  \"query\": null,\r\n  \"topK\": 10\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/discovery",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "discovery"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AllPapers",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/papers",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "papers"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
