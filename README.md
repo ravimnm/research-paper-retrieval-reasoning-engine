@@ -1,565 +1,711 @@
 # Research Retrieval & Reasoning Engine
 
-An AI engineering project that combines semantic retrieval, hybrid search, reranking, Retrieval-Augmented Generation (RAG), and external scholarly research discovery into a single research-intelligence pipeline.
+A full-stack AI research intelligence platform that combines hybrid information retrieval, semantic search, BM25, FAISS, Reciprocal Rank Fusion, cross-encoder reranking, Retrieval-Augmented Generation (RAG), and external scholarly research discovery.
 
-The project is implemented as a Google Colab notebook and is designed as the Python AI component that can later be integrated with a Spring Boot backend.
-
-## Overview
-
-Research papers contain large amounts of technical information distributed across abstracts, methodologies, experiments, datasets, algorithms, and conclusions. Basic keyword search often fails to capture relationships expressed using different terminology.
-
-This project builds a retrieval and reasoning pipeline that can:
-
-- Process research papers in PDF format
-- Split documents into token-aware chunks
-- Generate semantic embeddings
-- Perform dense vector retrieval
-- Perform lexical BM25 retrieval
-- Combine retrieval strategies using Reciprocal Rank Fusion
-- Rerank results using a cross-encoder
-- Generate grounded answers using Groq
-- Discover related research papers from external scholarly sources
-- Rank discovered papers using semantic similarity and reranking
-- Explain relationships between research papers
-- Evaluate retrieval quality using standard information-retrieval metrics
+The system allows users to upload research papers, ask grounded questions about their contents, discover related research from scholarly sources, and understand relationships between papers.
 
 ## Architecture
 
-```
-                         RESEARCH PAPER
-                              │
-                              ▼
-                       PDF Text Extraction
-                              │
-                              ▼
-                       Token-Aware Chunking
-                              │
-                              ▼
-                         BGE Embeddings
-                              │
-                    ┌─────────┴─────────┐
-                    │                   │
-                    ▼                   ▼
-               FAISS Search          BM25
-                    │                   │
-                    └─────────┬─────────┘
-                              ▼
-                       RRF Hybrid Fusion
-                              │
-                              ▼
-                    Cross-Encoder Reranker
-                              │
-                              ▼
-                         Top-K Evidence
-                              │
-                              ▼
-                            Groq
-                              │
-                              ▼
-                     Grounded RAG Answer
+```text
+React Frontend
+      ↓
+Spring Boot REST API
+      ↓
+Python FastAPI AI Engine
+      ↓
+Retrieval / RAG / Research Discovery
 ```
 
-The project also provides an external research-discovery pipeline:
+## Features
 
-```
-                     RESEARCH PAPER
-                           │
-                           ▼
-                         Groq
-                           │
-                    Search Query Generation
-                           │
-                ┌──────────┴──────────┐
-                ▼                     ▼
-             OpenAlex               arXiv
-                │                     │
-                └──────────┬──────────┘
-                           ▼
-                    Candidate Papers
-                           │
-                           ▼
-                   Deduplication
-                           │
-                           ▼
-                  BGE Semantic Ranking
-                           │
-                           ▼
-                  Cross-Encoder Ranking
-                           │
-                           ▼
-                  Related Research Papers
-                           │
-                           ▼
-                          Groq
-                           │
-                           ▼
-                Relationship Explanation
-```
+### Research Library
 
-## Core Capabilities
+* Upload research papers in PDF format
+* Store paper metadata in PostgreSQL
+* View uploaded papers through the React interface
+* Delete papers
+* Validate uploaded files
+* Maintain local paper storage
 
-### 1. PDF Research Paper Processing
+### Paper Question Answering
 
-Research papers are loaded as PDF documents and processed into structured page-level text.
+The system uses a multi-stage retrieval pipeline:
 
-The system preserves:
-
-- Paper/page information
-- Chunk identifiers
-- Source text
-- Page provenance
-
-This allows generated answers to be traced back to the retrieved evidence.
-
-### 2. Token-Aware Chunking
-
-Documents are divided into manageable chunks before embedding.
-
-The project uses token-aware chunking rather than simply splitting documents by characters or pages.
-
-```
+```text
 PDF
  ↓
-Pages
+PyMuPDF Text Extraction
  ↓
-Text
+Token-Aware Chunking
  ↓
-Tokenization
+BGE Embeddings
  ↓
-Overlapping Chunks
-```
-
-This improves retrieval granularity and allows the system to retrieve specific portions of a research paper.
-
-### 3. Semantic Embeddings
-
-Research text is converted into dense vector representations using a BGE embedding model.
-
-```
-Research Text
-      ↓
-Embedding Model
-      ↓
-Dense Vector
-```
-
-These vectors represent semantic meaning rather than relying only on exact keyword matches.
-
-### 4. Dense Retrieval with FAISS
-
-FAISS is used for efficient vector similarity search.
-
-```
-Query
+FAISS Semantic Search
+ +
+BM25 Lexical Search
  ↓
-Query Embedding
+Reciprocal Rank Fusion
  ↓
-FAISS
+Cross-Encoder Reranking
  ↓
-Semantically Relevant Chunks
+Evidence Context
+ ↓
+Groq LLM
+ ↓
+Grounded Answer + Sources
 ```
 
-This enables queries such as:
+### External Research Discovery
 
-> What architecture was used for blockchain wallet risk prediction?
-
-to retrieve relevant content even when the query wording differs from the original document.
-
-### 5. Lexical Retrieval with BM25
-
-Dense retrieval is combined with BM25 lexical retrieval.
-
-BM25 is useful when exact terminology matters, particularly for:
-
-- Algorithm names
-- Dataset names
-- Technical terminology
-- Acronyms
-- Specific identifiers
-
-The project therefore combines semantic and lexical retrieval rather than relying on only one retrieval strategy.
-
-### 6. Hybrid Retrieval with RRF
-
-The results from FAISS and BM25 are combined using Reciprocal Rank Fusion (RRF).
-
-```
-              Query
-                │
-        ┌───────┴───────┐
-        ▼               ▼
-      FAISS            BM25
-        │               │
-        └───────┬───────┘
-                ▼
-             RRF
-                │
-                ▼
-       Unified Candidate Set
+```text
+Uploaded Paper
+ ↓
+Groq Query Generation
+ ↓
+OpenAlex + arXiv
+ ↓
+Candidate Papers
+ ↓
+Deduplication
+ ↓
+BGE Semantic Ranking
+ ↓
+Cross-Encoder Reranking
+ ↓
+Related Papers
+ ↓
+Groq Relationship Analysis
 ```
 
-This provides a more robust retrieval strategy than relying exclusively on dense or lexical search.
+## Technology Stack
 
-### 7. Cross-Encoder Reranking
+### Frontend
 
-The initial retrieval stage produces candidate chunks.
+* React 19
+* Vite
+* JavaScript
+* REST API integration
 
-A cross-encoder then performs a second-stage relevance evaluation.
+### Backend
 
+* Java 21
+* Spring Boot 4
+* Spring Web
+* Spring Data JPA
+* Hibernate
+* PostgreSQL
+* Bean Validation
+* Spring RestClient
+* Maven
+
+### AI Engine
+
+* Python
+* FastAPI
+* PyMuPDF
+* Sentence Transformers
+* BAAI/bge-small-en-v1.5
+* FAISS
+* BM25
+* Reciprocal Rank Fusion
+* Cross-Encoder reranking
+* Groq
+* OpenAlex
+* arXiv
+
+### Development
+
+* Google Colab
+* Postman
+* ngrok
+* Git / GitHub
+
+## System Architecture
+
+```text
+                         ┌───────────────────────┐
+                         │     React Frontend    │
+                         │                       │
+                         │ Research Library      │
+                         │ Paper Upload           │
+                         │ Ask Paper              │
+                         │ Discover Research      │
+                         └───────────┬───────────┘
+                                     │
+                                  REST/JSON
+                                     │
+                         ┌───────────▼───────────┐
+                         │    Spring Boot API    │
+                         │                       │
+                         │ Controllers            │
+                         │ Services               │
+                         │ Validation             │
+                         │ Exception Handling     │
+                         │ AI Engine Client       │
+                         └───────┬─────────┬─────┘
+                                 │         │
+                         PostgreSQL         │ HTTP
+                                 │         │
+                         ┌───────▼───┐     │
+                         │  Database │     │
+                         └───────────┘     │
+                                           ▼
+                              ┌─────────────────────┐
+                              │ Python FastAPI      │
+                              │ AI Engine           │
+                              └──────────┬──────────┘
+                                         │
+                       ┌─────────────────┴─────────────────┐
+                       │                                   │
+                       ▼                                   ▼
+                Local RAG Pipeline              Research Discovery
+                       │                                   │
+                       ▼                                   ▼
+                 FAISS + BM25                       OpenAlex
+                       │                              arXiv
+                       ▼
+                RRF + Reranker
+                       │
+                       ▼
+                     Groq
 ```
-FAISS + BM25
-     ↓
-Candidate Chunks
-     ↓
-Cross-Encoder
-     ↓
-Reranked Evidence
+
+## Project Structure
+
+```text
+research-retrieval-reasoning-engine/
+│
+├── README.md
+│
+├── ai-engine/
+│   └── Research_Retrieval_Reasoning_Engine.ipynb
+│
+├── backend/
+│   └── research-retrieval-api/
+│       ├── pom.xml
+│       └── src/
+│           └── main/
+│               ├── java/com/research/retrieval/
+│               │   ├── ResearchRetrievalApplication.java
+│               │
+│               │   ├── controller/
+│               │   │   ├── PaperController.java
+│               │   │   ├── RetrievalController.java
+│               │   │   └── DiscoveryController.java
+│               │
+│               │   ├── service/
+│               │   │   ├── PaperService.java
+│               │   │   ├── RetrievalService.java
+│               │   │   └── DiscoveryService.java
+│               │
+│               │   ├── client/
+│               │   │   └── AiEngineClient.java
+│               │
+│               │   ├── dto/
+│               │   │   ├── RetrievalRequest.java
+│               │   │   ├── RetrievalResponse.java
+│               │   │   ├── DiscoveryRequest.java
+│               │   │   └── DiscoveryResponse.java
+│               │
+│               │   ├── entity/
+│               │   │   └── ResearchPaper.java
+│               │
+│               │   ├── repository/
+│               │   │   └── ResearchPaperRepository.java
+│               │
+│               │   ├── config/
+│               │   │   ├── RestClientConfig.java
+│               │   │   └── WebConfig.java
+│               │
+│               │   └── exception/
+│               │       ├── GlobalExceptionHandler.java
+│               │       └── ResourceNotFoundException.java
+│               │
+│               └── resources/
+│                   └── application.yml
+│
+└── frontend/
+    └── research-retrieval-ui/
+        ├── package.json
+        ├── vite.config.js
+        ├── index.html
+        └── src/
+            ├── App.jsx
+            ├── main.jsx
+            ├── components/
+            │   ├── FileUpload.jsx
+            │   ├── LoadingState.jsx
+            │   ├── PaperCard.jsx
+            │   ├── SearchBar.jsx
+            │   └── SourceCard.jsx
+            ├── pages/
+            │   ├── Home.jsx
+            │   ├── ComparePapers.jsx
+            │   └── DiscoverResearch.jsx
+            └── services/
+                └── api.js
 ```
+
+## Backend API
+
+### Paper APIs
+
+```text
+POST   /api/papers
+POST   /api/papers/upload
+GET    /api/papers
+GET    /api/papers/{id}
+GET    /api/papers/local
+DELETE /api/papers/{id}
+```
+
+### Retrieval API
+
+```text
+POST /api/retrieval
+```
+
+Example:
+
+```json
+{
+  "query": "What is the main contribution of this paper?",
+  "topK": 5
+}
+```
+
+### Discovery API
+
+```text
+POST /api/discovery
+```
+
+Example:
+
+```json
+{
+  "paperId": 1,
+  "query": null,
+  "topK": 5
+}
+```
+
+## Retrieval Architecture
+
+The retrieval system uses both semantic and lexical retrieval.
+
+### Semantic Retrieval
+
+Research-paper chunks are embedded using:
+
+```text
+BAAI/bge-small-en-v1.5
+```
+
+and indexed with FAISS.
+
+### Lexical Retrieval
+
+BM25 provides exact keyword-based retrieval for technical terminology.
+
+### Reciprocal Rank Fusion
+
+The FAISS and BM25 rankings are combined using Reciprocal Rank Fusion.
+
+```text
+FAISS ──────┐
+            ├── RRF ── Cross-Encoder ── Final Evidence
+BM25 ───────┘
+```
+
+### Cross-Encoder Reranking
+
+Candidate chunks are reranked before being supplied to the LLM.
 
 This creates a two-stage retrieval architecture:
 
-```
-Fast candidate retrieval
+```text
+Fast Candidate Retrieval
           ↓
-Precise relevance ranking
+Accurate Reranking
+          ↓
+Evidence Selection
 ```
 
-### 8. Retrieval-Augmented Generation
+## RAG Pipeline
 
-The retrieved evidence is passed to Groq for grounded answer generation.
+The final question-answering workflow is:
 
-```
+```text
 User Question
       ↓
 Hybrid Retrieval
       ↓
-Reranking
+RRF
       ↓
-Relevant Evidence
+Cross-Encoder Reranking
+      ↓
+Top Evidence
       ↓
 Context Construction
       ↓
 Groq
       ↓
-Answer
+Grounded Answer
+      +
+Source Provenance
 ```
 
-The model is instructed to answer using the retrieved research context rather than relying solely on its internal knowledge.
+The LLM does not directly search the uploaded document. Retrieval first determines the relevant evidence, which is then supplied to the generation stage.
 
-The system also retains source information for the retrieved evidence.
+## Research Discovery
 
-### 9. External Research Discovery
+The external discovery system searches scholarly sources including OpenAlex and arXiv.
 
-One of the major capabilities of the project is discovering related research outside the uploaded document corpus.
-
-This is different from normal RAG.
-
-Instead of asking:
-
-> "Which chunks in my uploaded PDF collection are similar?"
-
-the system can answer:
-
-> "What existing research is related to this paper?"
-
-**Pipeline**
-
-```
-Input Research Paper
-        ↓
-Groq extracts research concepts
-        ↓
-Generates scholarly search queries
-        ↓
-OpenAlex + arXiv
-        ↓
-External Research Candidates
-        ↓
-Semantic Similarity
-        ↓
-Cross-Encoder Reranking
-        ↓
-Related Research
-```
-
-### 10. OpenAlex Integration
-
-OpenAlex is used as an external scholarly research source.
-
-The system searches for research works based on automatically generated research queries and extracts metadata such as:
-
-- Title
-- Authors
-- Publication year
-- Abstract
-- DOI
-- Landing-page URL
-
-### 11. arXiv Integration
-
-The project also searches arXiv for relevant research papers.
-
-The retrieved information includes:
-
-- Paper title
-- Authors
-- Publication year
-- Abstract
-- arXiv URL
-
-This allows the system to return direct links to discovered research.
-
-### 12. External Paper Ranking
-
-External research candidates are ranked using the same retrieval principles used internally.
-
-```
-External Candidate Papers
-          ↓
-BGE Embeddings
-          ↓
-Semantic Similarity
-          ↓
-Top Candidates
-          ↓
-Cross-Encoder
-          ↓
-Final Ranked Papers
-```
-
-This separates:
-
-- Candidate discovery
-- Semantic retrieval
-- Precise reranking
-
-rather than trusting the search API's ranking alone.
-
-### 13. Research Relationship Analysis
-
-After related papers are discovered and ranked, Groq analyzes the relationship between the source paper and selected related papers.
-
-The analysis considers:
-
-- Shared research problem
-- Shared methodology
-- Shared algorithms/models
-- Shared application domain
-- Important differences
-- Why the related paper is relevant
-
-The system explicitly instructs the model not to invent unsupported information.
-
-### 14. Retrieval Evaluation
-
-The retrieval pipeline was evaluated using standard information-retrieval metrics:
-
-- Recall@5
-- Mean Reciprocal Rank (MRR)
-- NDCG@5
-
-Current manually annotated evaluation:
-
-| Metric   | Score  |
-|----------|--------|
-| Recall@5 | 1.0000 |
-| MRR      | 1.0000 |
-| NDCG@5   | 1.0000 |
-
-These results were obtained on a small manually annotated evaluation set based on the project research report. They should not be interpreted as general benchmark performance.
-
-The evaluation demonstrates that the relevant annotated evidence was retrieved within the top five results, with the first relevant result appearing at rank 1 for the evaluated queries.
-
-## Technology Stack
-
-**AI / ML**
-- Python
-- BGE Embedding Model
-- Cross-Encoder Reranking
-- Groq LLM
-
-**Retrieval**
-- FAISS
-- BM25
-- Reciprocal Rank Fusion
-- Cosine / vector similarity
-
-**Document Processing**
-- PyMuPDF
-- tiktoken
-
-**External Research**
-- OpenAlex
-- arXiv
-
-**Development**
-- Google Colab
-- Python notebooks
-
-## End-to-End Workflow
-
-The complete system supports two major workflows.
-
-### Local Research Question Answering
-
-```
-Research PDF
-    ↓
-Text Extraction
-    ↓
-Token-Aware Chunking
-    ↓
-Embeddings
-    ↓
-FAISS ──────┐
-            │
-BM25 ───────┤
-            ▼
-           RRF
-            ↓
-      Cross-Encoder
-            ↓
-      Relevant Evidence
-            ↓
-           Groq
-            ↓
-      Grounded Answer
-```
-
-### External Research Discovery
-
-```
+```text
 Research Paper
       ↓
-Research Profile
-      ↓
-Groq Query Generation
+LLM Query Generation
       ↓
 OpenAlex + arXiv
-      ↓
-Candidate Papers
       ↓
 Deduplication
       ↓
-BGE Similarity
+Embedding Similarity
       ↓
 Cross-Encoder Reranking
       ↓
-Related Papers + Links
+Top Related Papers
       ↓
-Groq Relationship Analysis
+Relationship Analysis
 ```
 
-## Example Use Cases
+Returned paper information includes:
 
-**Ask questions about a research paper**
+* Title
+* Authors
+* Publication year
+* Abstract
+* DOI
+* URL
+* Source
+* Embedding similarity
+* Reranking score
+* Relationship analysis
 
-> What model architecture was used for blockchain wallet risk prediction?
+## Database
 
-The system retrieves the relevant technical sections and generates a grounded response.
+PostgreSQL stores research-paper metadata.
 
-**Discover related research**
+Main entity:
 
-> Find research papers related to this work.
-
-The system searches OpenAlex and arXiv and returns ranked papers with available links and metadata.
-
-**Analyze research relationships**
-
-> Why is this paper related to my research?
-
-The system compares the source paper with the discovered paper and explains their shared problem, methodology, domain, and differences.
-
-## Project Structure
-
-The project is intentionally maintained as a single Google Colab notebook to keep the AI engineering workflow reproducible and easy to experiment with.
-
-```
-research-retrieval-reasoning-engine/
-│
-├── Research_Retrieval_Reasoning_Engine.ipynb
-└── README.md
+```text
+ResearchPaper
 ```
 
-The notebook contains the complete implementation, including:
+Fields include:
 
+```text
+id
+title
+authors
+abstractText
+sourceUrl
+fileName
+filePath
+sourceType
+uploadedAt
 ```
-Environment Setup
-        ↓
-PDF Processing
-        ↓
-Chunking
-        ↓
+
+Spring Data JPA and Hibernate are used for persistence.
+
+## AI Engine API
+
+The Python service exposes:
+
+```text
+GET  /health
+POST /upload
+POST /retrieve
+POST /discover
+```
+
+The Spring Boot backend communicates with the AI engine through `AiEngineClient`.
+
+```text
+React
+  ↓
+Spring Boot
+  ↓ HTTP
+FastAPI
+  ↓
+AI Pipeline
+```
+
+## Running the Project
+
+### PostgreSQL
+
+Create:
+
+```text
+Database: research_retrieval
+Host: localhost
+Port: 5432
+Username: postgres
+```
+
+Configure credentials in:
+
+```text
+backend/research-retrieval-api/src/main/resources/application.yml
+```
+
+### AI Engine
+
+Open:
+
+```text
+ai-engine/Research_Retrieval_Reasoning_Engine.ipynb
+```
+
+Configure:
+
+```text
+GROQ_API_KEY
+NGROK_AUTH_TOKEN
+```
+
+Run the notebook and start the FastAPI service.
+
+The AI engine runs on:
+
+```text
+http://localhost:8000
+```
+
+During development, ngrok can expose the AI service to Spring Boot.
+
+### Spring Boot
+
+Navigate to:
+
+```text
+backend/research-retrieval-api
+```
+
+Run:
+
+```bash
+mvn spring-boot:run
+```
+
+Backend:
+
+```text
+http://localhost:8080
+```
+
+### React
+
+Navigate to:
+
+```text
+frontend/research-retrieval-ui
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080/api
+```
+
+Run:
+
+```bash
+npm run dev
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+## Complete Request Flow
+
+```text
+User
+ ↓
+React
+ ↓
+Spring Boot REST API
+ ↓
+PostgreSQL
+ ↓
+AiEngineClient
+ ↓
+Python FastAPI
+ ↓
+PDF Processing / Retrieval / Discovery
+ ↓
+Groq / OpenAlex / arXiv
+ ↓
+Python Response
+ ↓
+Spring Boot
+ ↓
+React
+```
+
+## Evaluation
+
+The retrieval pipeline includes standard information-retrieval evaluation metrics:
+
+```text
+Recall@5 = 1.00
+MRR      = 1.00
+NDCG@5   = 1.00
+```
+
+These results were obtained on a small manually annotated evaluation set and should not be interpreted as a broad benchmark.
+
+## Engineering Highlights
+
+### Information Retrieval
+
+* Dense vector retrieval
+* BM25 lexical retrieval
+* Hybrid search
+* Reciprocal Rank Fusion
+* Cross-encoder reranking
+* Recall@K
+* MRR
+* NDCG
+
+### LLM Engineering
+
+* Token-aware document chunking
+* Sentence embeddings
+* Retrieval-Augmented Generation
+* Grounded generation
+* Query generation
+* Research relationship analysis
+* Provenance-aware responses
+
+### Backend Engineering
+
+* Java 21
+* Spring Boot
+* REST API design
+* Layered architecture
+* Spring Data JPA
+* Hibernate
+* PostgreSQL
+* Bean Validation
+* Global exception handling
+* Service-to-service HTTP communication
+
+### Frontend Engineering
+
+* React
+* Vite
+* Component-based UI
+* REST API integration
+* PDF upload workflow
+* Loading states
+* Error handling
+* Research discovery interface
+
+### AI System Architecture
+
+* Python AI microservice
+* FastAPI
+* FAISS
+* BM25
+* Cross-encoder reranking
+* Groq LLM integration
+* OpenAlex integration
+* arXiv integration
+* Hybrid retrieval
+* RAG
+
+## Why This Is More Than a Basic RAG Application
+
+A basic RAG system commonly follows:
+
+```text
+PDF
+ ↓
 Embeddings
-        ↓
-FAISS
-        ↓
-BM25
-        ↓
-RRF
-        ↓
-Reranking
-        ↓
-RAG
-        ↓
-External Research Discovery
-        ↓
-Evaluation
+ ↓
+Vector Database
+ ↓
+LLM
 ```
 
-## Why This Project
+This project implements a multi-stage retrieval architecture:
 
-The project focuses on demonstrating AI engineering rather than simply calling an LLM API.
-
-The LLM is only one component of the system.
-
-The main engineering pipeline includes:
-
-- Document processing
-- Token-aware chunking
-- Embedding generation
-- Vector retrieval
-- Lexical retrieval
-- Hybrid retrieval
-- Reciprocal Rank Fusion
-- Cross-encoder reranking
-- Context construction
-- Grounded generation
-- External research discovery
-- Semantic ranking
-- Research relationship analysis
-- Retrieval evaluation
-
-This makes the project a practical implementation of a modern retrieval and reasoning system rather than a simple chatbot.
-
-## Future Integration
-
-The Python notebook is designed as the AI engineering layer of a larger backend system.
-
-A future Spring Boot service can consume the core capabilities through an API boundary:
-
-```
-                    Spring Boot Backend
-                           │
-                           ▼
-                  Python AI Engine
-                           │
-             ┌─────────────┴─────────────┐
-             ▼                           ▼
-       Local RAG Pipeline        Research Discovery
-             │                           │
-             ▼                           ▼
-           Groq                 OpenAlex / arXiv
+```text
+PDF
+ ↓
+Token-Aware Chunking
+ ↓
+BGE Embeddings
+ ↓
+FAISS ──────────┐
+                │
+BM25 ───────────┤
+                ▼
+               RRF
+                ↓
+        Cross-Encoder
+                ↓
+       Evidence Selection
+                ↓
+               RAG
+                ↓
+              Groq
+                ↓
+      Grounded Answer
+                +
+           Provenance
 ```
 
-Potential backend responsibilities include:
+It also extends beyond local document Q&A by discovering and analyzing related scholarly research.
 
-- REST API
-- Paper management
-- PostgreSQL persistence
-- Job management
-- Authentication if ever required
-- Storage
-- Production deployment
+## Future Improvements
 
-The Python component remains responsible for the AI/retrieval pipeline.
+* Multi-paper simultaneous indexing
+* Persistent vector indexes
+* Background document indexing
+* Redis caching
+* Object storage for PDFs
+* Authentication and authorization
+* Docker deployment
+* Streaming LLM responses
+* Research graph construction
+* Citation graph analysis
+* Persistent conversation history
+* Larger retrieval evaluation datasets
+
+## Author
+
+**Ravi Sankar Manem**
+
+Computer Science & Engineering
+RGUKT Nuzvid
+
+GitHub:
+
+[https://github.com/ravimnm/research-paper-retrieval-reasoning-engine](https://github.com/ravimnm/research-paper-retrieval-reasoning-engine)
+
+## License
+
+This project is intended for educational, research, and portfolio purposes.
